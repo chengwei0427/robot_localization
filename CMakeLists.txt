@@ -26,8 +26,16 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   xmlrpcpp)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(YAML_CPP yaml-cpp)
+#yaml cpp hell
+find_package(yaml_cpp_catkin QUIET)
+if(${yaml_cpp_catkin_FOUND})
+  message(STATUS "Found yaml_cpp_catkin, using instead of system library.")
+  set(YamlCpp_LIBRARIES ${yaml_cpp_catkin_LIBRARIES})
+  set(YamlCpp_INCLUDE_DIRS ${yaml_cpp_catkin_INCLUDE_DIRS})
+else()
+  message(STATUS "No yaml_cpp_catkin, using yaml-cpp system library instead.")
+  pkg_check_modules(YamlCpp REQUIRED yaml-cpp>=0.5)
+endif()
 
 # Attempt to find Eigen using its own CMake module.
 # If that fails, fall back to cmake_modules package.
@@ -68,7 +76,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS
     include
-  LIBRARIES 
+  LIBRARIES
     ekf
     ekf_localization_nodelet
     filter_base
@@ -101,7 +109,7 @@ catkin_package(
     xmlrpcpp
   DEPENDS
     ${EIGEN_PACKAGE}
-    YAML_CPP
+    yaml_cpp_catkin
 )
 
 ###########
@@ -112,9 +120,9 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${YAML_CPP_INCLUDE_DIRS})
+  ${YamlCpp_INCLUDE_DIRS})
 
-link_directories(${YAML_CPP_LIBRARY_DIRS})
+#link_directories(${YAML_CPP_LIBRARY_DIRS})
 
 # Library definitions
 add_library(filter_utilities src/filter_utilities.cpp)
@@ -150,7 +158,7 @@ target_link_libraries(ukf filter_base ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(ros_filter ekf ukf ros_filter_utilities ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(robot_localization_estimator filter_utilities filter_base ekf ukf ${EIGEN3_LIBRARIES})
 target_link_libraries(ros_robot_localization_listener robot_localization_estimator ros_filter_utilities
-  ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES} ${YAML_CPP_LIBRARIES})
+  ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES} ${YamlCpp_LIBRARIES})
 target_link_libraries(robot_localization_listener_node ros_robot_localization_listener ${catkin_LIBRARIES})
 target_link_libraries(ekf_localization_node ros_filter ${catkin_LIBRARIES})
 target_link_libraries(ekf_localization_nodelet ros_filter ${catkin_LIBRARIES})
