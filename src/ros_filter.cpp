@@ -2482,7 +2482,11 @@ namespace RobotLocalization
     }
     else
     {
-      RF_DEBUG("Could not transform measurement into " << targetFrame << ". Ignoring...\n");
+      std::stringstream ss;
+      ss << "Could not transform IMU acceleration measurement from " << msgFrame
+         << " into " << targetFrame << ". Ignoring...";
+      ROS_WARN("%s", ss.str().c_str());
+      RF_DEBUG(ss.str());
     }
 
     RF_DEBUG("\n----- /RosFilter::prepareAcceleration(" << topicName << ") ------\n");
@@ -2874,8 +2878,11 @@ namespace RobotLocalization
     else
     {
       retVal = false;
-
-      RF_DEBUG("Could not transform measurement into " << finalTargetFrame << ". Ignoring...");
+      std::stringstream ss;
+      ss << "Could not transform pose measurement from " << poseTmp.frame_id_
+      << " into " << finalTargetFrame << ". Ignoring...";
+      ROS_WARN("%s", ss.str().c_str());
+      RF_DEBUG(ss.str());
     }
 
     RF_DEBUG("\n----- /RosFilter::preparePose (" << topicName << ") ------\n");
@@ -3025,7 +3032,11 @@ namespace RobotLocalization
     }
     else
     {
-      RF_DEBUG("Could not transform measurement into " << targetFrame << ". Ignoring...");
+      std::stringstream ss;
+      ss << "Could not transform twist measurement from " << msgFrame
+         << " into " << targetFrame << ". Ignoring...";
+      ROS_WARN("%s", ss.str().c_str());
+      RF_DEBUG(ss.str());
     }
 
     RF_DEBUG("\n----- /RosFilter::prepareTwist (" << topicName << ") ------\n");
